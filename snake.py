@@ -6,6 +6,7 @@ clock = pygame.time.Clock()
 
 # variables
 gameOver = False
+gameStart = False
 score = 0
 
 toolBarSize = 60
@@ -91,8 +92,17 @@ class Food:
         self.position = position
 
 
-snake = Snake()
-food = Food()
+snake = None
+food = None
+
+
+def start():
+    global snake, food, gameStart, score, gameOver
+    gameOver = False
+    score = 0
+    gameStart = True
+    snake = Snake()
+    food = Food()
 
 
 def check():
@@ -148,12 +158,24 @@ def showGameOver():
     font = pygame.font.SysFont('sans-serif', 60)
     gameOverText = font.render(f"Game Over", True, (255, 20, 20))
     screen.blit(gameOverText, ((winWidth/2) - int(gameOverText.get_width()/2),
-                               ((winHeight-toolBarSize)/2) - (gameOverText.get_height()/2)))
+                               ((winHeight-toolBarSize)/2) - (gameOverText.get_height())))
 
     font = pygame.font.SysFont('sans-serif', 40)
     scoreText = font.render(f"Score: {score}", True, (255, 208, 15))
     screen.blit(scoreText, ((winWidth/2) - int(scoreText.get_width()/2),
-                            ((winHeight-toolBarSize)/2) + (scoreText.get_height())))
+                            ((winHeight-toolBarSize)/2) + (scoreText.get_height()/2)))
+
+    font = pygame.font.SysFont('sans-serif', 40)
+    scoreText = font.render(f"Click R to Retry", True, snakeHeadColor)
+    screen.blit(scoreText, ((winWidth/2) - int(scoreText.get_width()/2),
+                            ((winHeight-toolBarSize)/2) + (scoreText.get_height()*2)))
+
+
+def startGameWindow():
+    font = pygame.font.SysFont('sans-serif', 40)
+    scoreText = font.render(f"Click R to start", True, snakeHeadColor)
+    screen.blit(scoreText, ((winWidth/2) - int(scoreText.get_width()/2),
+                            ((winHeight-toolBarSize)/2) - (scoreText.get_height()/2)))
 
 
 while True:
@@ -165,20 +187,25 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 snake.changeDirection()
+            if event.key == pygame.K_r:
+                start()
         pygame.display.update()
 
     screen.fill(bgColor)
     setGrid()
 
-    snake.show()
-    food.show()
-    showScore()
-    check()
+    if gameStart:
+        snake.show()
+        food.show()
+        showScore()
+        check()
 
-    if gameOver != True:
-        snake.move()
+        if gameOver != True:
+            snake.move()
+        else:
+            showGameOver()
     else:
-        showGameOver()
+        startGameWindow()
 
     pygame.display.flip()
     clock.tick(8)
